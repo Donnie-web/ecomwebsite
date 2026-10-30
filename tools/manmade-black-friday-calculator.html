@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>ManMade | Black Friday Offer Calculator</title>
+  <meta name="description" content="Interactive ManMade bundle discount, COGS, and ROAS calculator. Fully editable. Works offline, with three Black Friday offer presets." />
+  <style>
+    :root { --ink:#171717; --muted:#76756f; --subtle:#96938a; --cream:#f7f6f2; --paper:#fff; --line:#e8e6e0; --gold:#b68b40; --gold-dark:#795927; --gold-pale:#fbf4e7; --good:#22744f; --red:#aa4d3f; --dark:#181816; --shadow:0 9px 35px rgba(25,24,18,.045); }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--cream);color:var(--ink);font:14px/1.48 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid rgba(182,139,64,.5);outline-offset:2px}
+    .wrap{max-width:1340px;margin:auto;padding:0 32px}
+    .topbar{background:#151515;color:#fff}
+    .top-inner{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;gap:11px;align-items:center;letter-spacing:.15em;font-size:16px;font-weight:850;white-space:nowrap}
+    .logo{height:35px;width:35px;border:1.5px solid var(--gold);display:grid;place-items:center;color:#e0b65c;font-size:17px;font-weight:800;letter-spacing:-.07em}
+    .brand small{font-size:9px;letter-spacing:.31em;display:block;color:#d2c49c;font-weight:650;line-height:1.3}
+    .topright{display:flex;align-items:center;gap:14px}
+    .top-pill{border:1px solid #5c4b31;color:#d9bd82;padding:5px 10px;border-radius:30px;letter-spacing:.16em;font-size:10px;font-weight:800;text-transform:uppercase}
+    .top-label{font-size:12px;color:#bbb7ae}
+    .hero{background:#1d1d1b;color:#fff;position:relative;overflow:hidden}
+    .hero:before{content:"";pointer-events:none;position:absolute;width:600px;height:300px;right:-100px;top:-190px;background:radial-gradient(ellipse,#b9903c25 0%,transparent 70%)}
+    .hero-content{padding:40px 0 43px;display:flex;align-items:flex-end;justify-content:space-between;gap:32px;position:relative}
+    .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.18em;font-weight:800;color:#c5a062}
+    h1{font-size:clamp(30px,3.8vw,49px);line-height:1.07;margin:12px 0 12px;letter-spacing:-.047em;font-weight:760}
+    .hero-copy{font-size:14px;color:#c4c1bb;max-width:600px;margin:0}
+    .hero-side{display:flex;gap:9px;flex-wrap:wrap;justify-content:end}
+    .btn{border-radius:9px;padding:11px 15px;font-weight:710;font-size:12px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:#fff;color:var(--ink);white-space:nowrap;transition:background .14s,border-color .14s,transform .14s}
+    .btn:hover{background:#f4f0e8;transform:translateY(-1px)}
+    .btn.gold{background:#c5a15a;border-color:#c5a15a;color:#17130d}
+    .btn.gold:hover{background:#dfb66c}
+    .btn.dark{background:#2d2c29;border-color:#4a4843;color:#f3f2ef}
+    .btn.dark:hover{background:#3c3a35}
+    .btn.soft{background:#fff;border-color:#dcd9cf}
+    .section-title{display:flex;justify-content:space-between;gap:15px;align-items:end;margin-bottom:15px}
+    .section-title h2{font-size:18px;letter-spacing:-.025em;margin:0;line-height:1.2}
+    .section-title p{font-size:12px;color:var(--muted);margin:5px 0 0}
+    .kicker{font-size:10px;text-transform:uppercase;letter-spacing:.17em;font-weight:850;color:var(--gold-dark);margin-bottom:7px}
+    .main{padding-top:29px;padding-bottom:58px}
+    .presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .preset{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:left;position:relative;transition:border .17s,box-shadow .17s;min-height:147px}
+    .preset:hover{box-shadow:0 7px 28px #1717170b;border-color:#c3ab7f}
+    .preset.active{border:1.5px solid var(--gold);box-shadow:0 0 0 3px #c6a45c17}
+    .preset-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .preset-label{font-weight:800;font-size:13px;letter-spacing:-.01em}
+    .preset-note{font-size:11px;color:var(--muted);margin-top:4px;min-height:16px}
+    .badge{background:#f6f2e9;color:#927039;border-radius:50px;padding:4px 9px;font-size:10px;font-weight:850;white-space:nowrap}
+    .preset.active .badge{background:#e9d5a8;color:#5e4217}
+    .preset-bottom{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:17px;gap:11px}
+    .p-label{color:var(--muted);font-size:10px;white-space:nowrap}
+    .p-number{font-weight:800;font-size:17px;line-height:1.25;margin-top:4px;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+    .p-number.gold-number{color:var(--gold-dark)}
+    .grid{display:grid;grid-template-columns:minmax(0,1.17fr) minmax(360px,.83fr);align-items:start;gap:17px;margin-top:22px}
+    .stack{display:flex;flex-direction:column;gap:17px;min-width:0}
+    .panel{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow);overflow:hidden}
+    .panel-head{padding:22px 23px 16px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+    .panel-head h2{margin:0;font-size:19px;letter-spacing:-.025em;line-height:1.2}
+    .panel-head p{margin:5px 0 0;color:var(--muted);font-size:12px}
+    .panel-inner{padding:0 23px 23px}
+    .subtle-flag{font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:850;color:#6b654f;background:#faf5e7;padding:5px 9px;border-radius:30px;white-space:nowrap}
+    .products-head{display:grid;grid-template-columns:minmax(126px,1.25fr) 102px repeat(3,minmax(76px,.8fr));gap:8px;align-items:center;color:var(--muted);font-size:11px;padding:10px 9px;border-bottom:1px solid var(--line);font-weight:700}
+    .product-row{display:grid;grid-template-columns:minmax(126px,1.25fr) 102px repeat(3,minmax(76px,.8fr));gap:8px;align-items:center;padding:11px 9px;border-bottom:1px solid #f0eee9}
+    .product-row:last-child{border-bottom:0}
+    .product-row.inactive .item-title{color:#999}
+    .item-title{font-weight:790;font-size:12px;line-height:1.32}
+    .item-sub{font-size:10px;color:#aaa69d;margin-top:3px}
+    .qty{display:flex;align-items:center;justify-content:space-between;background:#f6f5f1;border:1px solid #e9e6dd;border-radius:8px;min-height:37px;overflow:hidden}
+    .qty button{background:transparent;border:0;color:#39352e;width:25px;height:34px;font-size:16px;font-weight:650}
+    .qty button:hover{background:#e8e1d3}
+    .qty input{width:38px;padding:0;border:0;background:transparent;text-align:center;font-weight:800;font-size:12px;outline:none;-moz-appearance:textfield}
+    .qty input::-webkit-outer-spin-button,.qty input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+    .field-money{position:relative;display:block}
+    .field-money::before{content:"$";position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#958f84;font-size:12px}
+    .field-money input{width:100%;border:1px solid #e4e1d9;background:#fff;padding:9px 7px 9px 21px;border-radius:8px;color:#252522;min-height:37px;font-size:12px;font-weight:680;font-variant-numeric:tabular-nums}
+    .field-money input:focus,.setting-input:focus{border-color:var(--gold);outline:2px solid #baa16c2a}
+    .mobile-hint{display:none;font-size:11px;color:#77736b;margin:6px 0 0}
+    .pill-note{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px;margin-top:14px;line-height:1.45}
+    .dot{width:6px;height:6px;border-radius:50%;background:#b58b43;flex-shrink:0}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+    .field-label{display:block;color:#62605b;font-weight:730;font-size:11px;margin-bottom:7px}
+    .big-input{font-size:23px!important;padding-top:12px!important;padding-bottom:12px!important;min-height:54px!important;font-weight:800!important;letter-spacing:-.04em}
+    .big-dollar::before{font-size:20px!important;left:14px!important}
+    .big-dollar input{padding-left:33px!important}
+    .big-stat-line{padding:16px 0 0;display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .micro{color:var(--muted);font-size:12px}
+    .micro-strong{font-weight:800;font-size:14px;font-variant-numeric:tabular-nums}
+    .line{border-top:1px solid var(--line);margin:18px 0}
+    details summary{list-style:none;display:flex;align-items:center;justify-content:space-between;padding:0 23px 21px;font-weight:800;font-size:15px;cursor:pointer}
+    details summary::-webkit-details-marker{display:none}
+    details summary::after{content:"+";font-size:21px;font-weight:450;color:var(--gold-dark)}
+    details[open] summary::after{content:"−"}
+    .rates-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+    .field{display:block}
+    .setting-row{position:relative}
+    .setting-input{width:100%;border:1px solid #e4e1d9;background:#fff;padding:10px 26px 10px 11px;border-radius:8px;min-height:40px;font-size:13px;font-weight:750}
+    .setting-row .suffix{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:11px;color:#99938b;font-weight:750}
+    .assumptions-footer{background:#fbf9f4;border-radius:9px;padding:12px;margin-top:14px;font-size:11px;color:#797267;line-height:1.55}
+    .result-top{padding:24px 23px 18px;background:#1a1a18;color:#fff}
+    .result-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .result-top h2{font-size:20px;margin:0;letter-spacing:-.025em}
+    .result-chip{font-size:10px;font-weight:800;background:#3b3427;color:#e7c993;border-radius:30px;padding:5px 9px}
+    .price-line{display:flex;align-items:baseline;gap:10px;margin:20px 0 12px;flex-wrap:wrap}
+    .sale-display{font-size:43px;font-weight:850;line-height:1;letter-spacing:-.055em;font-variant-numeric:tabular-nums}
+    .strike{color:#a9a49a;font-size:18px;text-decoration:line-through;font-weight:600}
+    .gold-tag{padding:8px 11px;background:#caa865;color:#1b170f;border-radius:7px;font-weight:850;font-size:13px;letter-spacing:-.01em}
+    .discount-double{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:17px;border-top:1px solid #393731;padding-top:15px}
+    .discount-double .name{color:#b6b2a8;font-size:11px}
+    .discount-double .value{color:#fff;font-size:19px;font-weight:800;letter-spacing:-.045em;font-variant-numeric:tabular-nums;margin-top:3px}
+    .discount-double .sub{font-size:10px;color:#918d84;margin-top:2px}
+    .metrics{padding:20px 23px 23px}
+    .metrics-head{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:#807a70;font-weight:850;margin-bottom:12px}
+    .metric-main{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .metric-card{background:#f7f6f2;border:1px solid #e9e6dc;padding:16px 14px;border-radius:10px;min-height:115px}
+    .metric-card.accent{background:#faf3e5;border-color:#ead7ad}
+    .metric-card .label{color:#6f6b63;font-size:11px;min-height:31px;line-height:1.35}
+    .metric-card .figure{font-size:32px;font-weight:850;line-height:1.12;letter-spacing:-.055em;font-variant-numeric:tabular-nums;margin-top:5px}
+    .metric-card.accent .figure{color:#97702a}
+    .small-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .small-metric{border:1px solid #ebe8e1;padding:12px;border-radius:9px}
+    .small-metric span{display:block;color:#7c786f;font-size:10px;line-height:1.35}
+    .small-metric strong{display:block;margin-top:4px;font-size:18px;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+    .mini-chart{margin-top:19px}
+    .chart-title{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#757168;margin-bottom:9px}
+    .chart-track{height:11px;background:#f0ede5;border-radius:20px;position:relative;overflow:visible}
+    .chart-segment{position:absolute;top:0;height:11px;border-radius:30px 0 0 30px;background:#dac69e}
+    .chart-target{position:absolute;top:0;height:11px;background:#b88a39;border-radius:0 30px 30px 0}
+    .chart-marker{position:absolute;top:-4px;height:19px;width:3px;background:#272522;border-radius:2px;transform:translateX(-50%)}
+    .chart-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:#79746c;margin-top:12px}
+    .key{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px}
+    .result-divider{height:1px;background:var(--line);margin:0 23px}
+    .projection{padding:21px 23px 23px}
+    .projection h3{margin:0;font-size:16px;letter-spacing:-.015em}
+    .projection p{font-size:11px;color:var(--muted);margin:4px 0 0}
+    .roas-control{display:flex;align-items:center;gap:15px;margin-top:16px}
+    input[type=range]{width:100%;accent-color:#ad833e;cursor:pointer}
+    .roas-number{border:1px solid #e4e1d9;padding:8px 8px;width:86px;border-radius:8px;text-align:center;font-size:15px;font-weight:800}
+    .projection-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:17px}
+    .projection-stats .sm-label{font-size:10px;color:#7b766c}
+    .projection-stats .big-number{font-size:27px;font-weight:850;letter-spacing:-.05em;font-variant-numeric:tabular-nums;margin-top:3px}
+    .positive{color:var(--good)} .negative{color:var(--red)}
+    .progress-wrap{margin-top:16px}
+    .progress-top{display:flex;justify-content:space-between;font-size:11px;color:#807b70;margin-bottom:7px}
+    .progress{height:8px;background:#eeece6;border-radius:20px;overflow:hidden}
+    .progress-fill{height:100%;background:#b88c43;border-radius:20px;transition:width .12s}
+    .result-breakdown{padding:0 23px 23px}
+    .result-breakdown h3{font-size:13px;margin:18px 0 13px}
+    .breakdown-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0efeb;color:#67645e;font-size:12px}
+    .breakdown-row strong{font-weight:760;color:#1f1e1c;font-variant-numeric:tabular-nums}
+    .breakdown-row.final{border-top:1px solid #dedad0;border-bottom:0;margin-top:5px;padding-top:13px;color:#191817;font-weight:800}
+    .breakdown-row.final strong{font-size:18px}
+    .comparison{margin-top:24px}
+    .table-wrap{overflow:auto}
+    table{border-collapse:collapse;width:100%;text-align:left;font-size:12px;min-width:790px}
+    th{color:#888278;font-size:10px;text-transform:uppercase;letter-spacing:.075em;font-weight:850;background:#fbfaf7;padding:13px 14px;border-bottom:1px solid #e9e6df;white-space:nowrap}
+    td{padding:15px 14px;border-bottom:1px solid #eeece7;font-variant-numeric:tabular-nums;white-space:nowrap}
+    tr:last-child td{border-bottom:0}
+    tr.current-row{background:#fdf8ed}
+    .row-offer{font-weight:750;color:#272420}
+    .small-row-sub{font-size:10px;color:#8a857e;margin-top:2px}
+    .table-good{color:var(--good);font-weight:800}
+    .table-roas{font-weight:850}
+    .footnote{font-size:12px;color:#8a857b;line-height:1.7;margin:16px 3px 0}
+    .footer{padding:21px 0 42px;color:#918c82;font-size:11px;border-top:1px solid #e4e0d8;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .footer-brand{font-size:12px;font-weight:850;letter-spacing:.13em;color:#474135}
+    .toast{position:fixed;bottom:23px;left:50%;transform:translate(-50%,24px);background:#23221e;color:white;padding:12px 16px;border-radius:9px;font-size:12px;font-weight:650;box-shadow:0 10px 35px #0002;opacity:0;pointer-events:none;transition:transform .2s,opacity .2s;z-index:30;max-width:90vw;text-align:center}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .icon-arrow{font-size:14px}
+    .actions-row{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+    @media(min-width:1100px){.sticky{position:sticky;top:18px}}
+    @media(max-width:1000px){.grid{grid-template-columns:1fr}.presets{gap:10px}.hero-content{align-items:flex-start}.hero-side{max-width:270px}.product-row,.products-head{grid-template-columns:minmax(120px,1.3fr) 102px repeat(3,minmax(80px,.7fr))}}
+    @media(max-width:700px){.mobile-hint{display:block}.wrap{padding:0 16px}.hero-content{padding:32px 0;display:block}.hero-side{justify-content:flex-start;max-width:unset;margin-top:20px}.top-label{display:none}.presets{grid-template-columns:1fr}.preset{min-height:0;padding:15px}.preset-bottom{margin-top:11px}.hero-copy{font-size:13px}.panel-head,.panel-inner,.result-top,.metrics,.projection{padding-left:16px;padding-right:16px}.result-divider{margin:0 16px}.result-breakdown{padding-left:16px;padding-right:16px}.product-row,.products-head{grid-template-columns:125px 100px repeat(3,90px);gap:7px}.product-scroll{overflow-x:auto}.products-head{min-width:550px}.product-row{min-width:550px}.section-title{align-items:flex-start;flex-direction:column}.top-pill{display:none}.footer{flex-direction:column;align-items:flex-start}.actions-row{justify-content:flex-start}.hero-side .btn{flex:1 1 auto}.preset-bottom{grid-template-columns:1fr 1fr 1fr}.panel-inner .two{gap:8px}}
+    @media(max-width:390px){.sale-display{font-size:38px}.metric-card{padding:12px}.metric-card .figure{font-size:28px}.metric-card .label{font-size:10px}.projection-stats .big-number{font-size:22px}}
+    @media print{body{background:#fff}.hero{background:#202020!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.topbar{background:#151515!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.hero-side,.actions-row,.btn,.qty button,.roas-control input[type=range],.footnote{display:none!important}.grid{grid-template-columns:1fr 1fr;gap:12px}.panel{break-inside:avoid}.presets{grid-template-columns:repeat(3,1fr)}details:not([open]) .panel-inner{display:none}.main{padding-top:15px}.comparison{break-before:page}.sticky{position:static}table{min-width:0;font-size:10px}}
+  </style>
+</head>
+<body>
+  <script id="savedState" type="application/json">{}</script>
+  <header class="topbar"><div class="wrap top-inner">
+    <div class="brand"><div class="logo">M</div><div>MANMADE<small>LABS</small></div></div>
+    <div class="topright"><span class="top-label">INTERNAL OFFER PLANNING TOOL</span><span class="top-pill">BLACK FRIDAY · 2026</span></div>
+  </div></header>
+  <div class="hero"><div class="wrap hero-content">
+    <div><div class="eyebrow">THE OFFER ENGINE / 2026</div><h1>Build the deal.<br>Protect the margin.</h1><p class="hero-copy">Live discount math, bundle COGS, break-even ROAS and 25% net profit targets. Every assumption is editable.</p></div>
+    <div class="hero-side"><button class="btn dark" id="copySummary">Copy summary <span class="icon-arrow">↗</span></button><button class="btn gold" id="downloadHtml">Download shareable HTML <span class="icon-arrow">↗</span></button></div>
+  </div></div>
+  <main class="wrap main">
+    <div class="section-title"><div><div class="kicker">START HERE</div><h2>Black Friday offer presets</h2><p>Select an offer, then adjust product prices, quantities, and costs below.</p></div><button class="btn soft" id="resetAll">↻ &nbsp;Reset all values</button></div>
+    <div class="presets" id="presets"></div>
+    <div class="grid">
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head"><div><h2>Kit builder</h2><p>Quantities and per-unit values for every product.</p></div><span class="subtle-flag" id="selectedFlag">CORE KIT</span></div>
+          <div class="panel-inner">
+            <div class="product-scroll"><div class="products-head"><span>PRODUCT</span><span>QTY</span><span>SELLING</span><span>COMPARE-AT</span><span>COGS</span></div><div id="products"></div></div>
+            <div class="mobile-hint">Swipe the product table sideways to edit compare-at prices and COGS →</div><div class="pill-note"><span class="dot"></span>Foil shaver: $59.99 current / $85 compare-at. Aftershave COGS uses your $3.40 figure.</div>
+            <div class="line"></div>
+            <div class="two"><div><label for="sale" class="field-label">Bundle Black Friday price</label><label class="field-money big-dollar"><input id="sale" class="big-input" type="number" step=".01" min="0" inputmode="decimal" /></label></div><div><label for="coupon" class="field-label">Additional coupon ($)</label><label class="field-money big-dollar"><input id="coupon" class="big-input" type="number" step=".01" min="0" inputmode="decimal" /></label></div></div>
+            <div class="big-stat-line"><span class="micro">Customer actually pays</span><span class="micro-strong" id="customerPays">$—</span></div>
+            <div class="big-stat-line"><span class="micro">Total bundle COGS + fulfillment</span><span class="micro-strong" id="totalCosts">$—</span></div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><div><h2>Operating assumptions</h2><p>Edit the fees that influence break-even and profit targets.</p></div><span class="subtle-flag">FULLY EDITABLE</span></div>
+          <details open><summary>Cost percentages & profit target</summary><div class="panel-inner"><div class="rates-grid" id="rates"></div><div class="assumptions-footer">Return and chargeback rates are modeled as a percentage of collected revenue. Syndicate receives 1% of ad spend plus 15% of <em>positive</em> contribution margin. Fulfillment is added per order. These are planning assumptions; taxes or shipping charged to customers should be modeled consistently with revenue.</div></div></details>
+        </section>
+      </div>
+      <aside class="stack sticky">
+        <section class="panel">
+          <div class="result-top">
+            <div class="result-head"><h2>Your Black Friday offer</h2><span class="result-chip" id="resultOfferName">CORE KIT</span></div>
+            <div class="price-line"><span class="sale-display" id="displayPrice">$—</span><span class="strike" id="displayCompare">$—</span><span class="gold-tag" id="displayDiscount">—% OFF</span></div>
+            <div class="discount-double">
+              <div><div class="name">Savings vs compare-at</div><div class="value" id="compareSavings">$—</div><div class="sub" id="compareRate">—% savings</div></div>
+              <div><div class="name">Savings vs current prices</div><div class="value" id="currentSavings">$—</div><div class="sub" id="currentRate">—% savings</div></div>
+            </div>
+          </div>
+          <div class="metrics"><div class="metrics-head">ROAS REQUIREMENTS</div>
+            <div class="metric-main"><div class="metric-card"><div class="label">True break-even ROAS<br>(including Syndicate)</div><div class="figure" id="breakEvenR">—</div></div><div class="metric-card accent"><div class="label">ROAS required for<br><span id="targetLabel">25%</span> net profit</div><div class="figure" id="targetR">—</div></div></div>
+            <div class="small-metrics"><div class="small-metric"><span>Basic break-even</span><strong id="basicR">—</strong></div><div class="small-metric"><span>Regular break-even</span><strong id="regularR">—</strong></div></div>
+            <div class="mini-chart"><div class="chart-title"><span>ROAS threshold visualization</span><span id="chartCap">Scale 0–4.0×</span></div><div class="chart-track"><div class="chart-segment" id="chartStart"></div><div class="chart-target" id="chartBetween"></div><div class="chart-marker" id="chartCurrent" title="Your test ROAS"></div></div><div class="chart-legend"><span><span class="key" style="background:#dac69e"></span>Break-even threshold</span><span><span class="key" style="background:#b88a39"></span>Profit target gap</span><span><span class="key" style="background:#272522"></span>Test ROAS</span></div></div>
+          </div>
+          <div class="result-divider"></div>
+          <div class="projection"><h3>Profit at your actual ROAS</h3><p>See what an order earns after all modeled costs.</p><div class="roas-control"><input type="range" id="roasSlider" min="0.5" max="6" step="0.05" value="2" aria-label="Actual ROAS"/><input class="roas-number" id="roas" type="number" min="0.01" step="0.05" inputmode="decimal" aria-label="Actual ROAS"/></div><div class="projection-stats"><div><div class="sm-label">Net profit / order</div><div class="big-number" id="profitNumber">—</div></div><div><div class="sm-label">Final profit margin</div><div class="big-number" id="marginNumber">—</div></div></div><div class="progress-wrap"><div class="progress-top"><span>Progress to your margin target</span><strong id="progressText">—</strong></div><div class="progress"><div class="progress-fill" id="progressFill"></div></div></div></div>
+          <div class="result-divider"></div>
+          <div class="result-breakdown"><h3>Per-order breakdown</h3><div id="breakdown"></div></div>
+        </section>
+      </aside>
+    </div>
+    <section class="comparison"><div class="section-title"><div><div class="kicker">SIDE BY SIDE</div><h2>Compare the three offers</h2><p>The table recalculates when you change any product value or operating assumption. Edit an offer above to compare your custom kit separately.</p></div><div class="actions-row"><button class="btn soft" id="exportCsv">↓ &nbsp;Export comparison CSV</button><button class="btn soft" id="printPage">⎙ &nbsp;Print / Save PDF</button></div></div><div class="panel table-wrap"><table><thead><tr><th>Offer</th><th>BF price</th><th>Current value</th><th>Compare-at value</th><th>Savings</th><th>Discount</th><th>BE ROAS</th><th>25% margin ROAS*</th></tr></thead><tbody id="comparisonRows"></tbody></table></div><p class="footnote">*The profit target column uses the editable target margin (25% by default). The foil’s $85 compare-at value is used only in the advertised reference-price comparison. Use genuine and supportable compare-at prices; the combined value of separate items is not automatically proof of a former bundle price.</p></section>
+  </main>
+  <footer class="wrap footer"><span class="footer-brand">MANMADE LABS · OFFER ENGINE</span><span>Self-contained, offline-capable. Click “Download shareable HTML” to preserve and send your edited scenario.</span></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    'use strict';
+    const DEFAULTS={
+      products:[
+        {id:'trimmer',name:'Precision Trimmer',current:79.95,compare:79.95,cogs:13.50},
+        {id:'foil',name:'Compact Foil Shaver',current:59.99,compare:85,cogs:15},
+        {id:'nose',name:'Precision Nose Trimmer',current:34.99,compare:34.99,cogs:10.50},
+        {id:'bag',name:'Toiletry Bag',current:29.99,compare:29.99,cogs:5},
+        {id:'after',name:'Aftershave',current:14.99,compare:14.99,cogs:3.40}
+      ],
+      assumptions:{returns:6,chargebacks:0.5,tax:0.5,processing:3.1,syndicateAd:1,syndicateCM:15,fulfillment:0,target:25},
+      selected:'core',qty:{trimmer:1,foil:0,nose:0,bag:1,after:0},sale:79.95,coupon:0,roas:2
+    };
+    const PRESETS=[
+      {id:'core',name:'Core Kit',short:'CORE KIT',description:'Trimmer + free bag',sale:79.95,qty:{trimmer:1,foil:0,nose:0,bag:1,after:0}},
+      {id:'value',name:'Value Kit',short:'VALUE KIT',description:'Trimmer + bag + 2 aftershaves',sale:99.95,qty:{trimmer:1,foil:0,nose:0,bag:1,after:2}},
+      {id:'premium',name:'Premium Kit',short:'PREMIUM KIT',description:'Trimmer + foil + bag',sale:124.95,qty:{trimmer:1,foil:1,nose:0,bag:1,after:0}}
+    ];
+    const RATES=[
+      ['returns','Returns','%'],['chargebacks','Chargebacks','%'],['tax','Tax / reserve','%'],['processing','Transaction fees','%'],
+      ['syndicateAd','Syndicate · ad spend','%'],['syndicateCM','Syndicate · positive CM','%'],['fulfillment','Fulfillment per order','$'],['target','Target net margin','%']
+    ];
+    const clone=o=>JSON.parse(JSON.stringify(o));
+    let state=clone(DEFAULTS);
+    const qs=id=>document.getElementById(id);
+    const number=v=>Number.isFinite(Number(v))?Math.max(0,Number(v)):0;
+    const money=v=>`${v<0?'−':''}$${Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+    const roasFmt=v=>v!==null&&Number.isFinite(v)?v.toFixed(2)+'×':'Not feasible';
+    const pct=v=>Number.isFinite(v)?v.toFixed(1)+'%':'—';
+    const n2=v=>v.toFixed(2);
+    function normalizeState(provided){
+      const data=clone(DEFAULTS);
+      if(!provided||typeof provided!=='object')return data;
+      if(Array.isArray(provided.products)){for(const p of data.products){const alt=provided.products.find(x=>x&&x.id===p.id);if(alt)for(const key of ['current','compare','cogs'])if(alt[key]!==undefined)p[key]=number(alt[key]);}}
+      if(provided.assumptions&&typeof provided.assumptions==='object')for(const k of Object.keys(data.assumptions))if(provided.assumptions[k]!==undefined)data.assumptions[k]=number(provided.assumptions[k]);
+      if(provided.qty&&typeof provided.qty==='object')for(const k of Object.keys(data.qty))if(provided.qty[k]!==undefined)data.qty[k]=Math.min(100,Math.floor(number(provided.qty[k])));
+      for(const k of ['sale','coupon','roas'])if(provided[k]!==undefined)data[k]=number(provided[k]);
+      data.selected=PRESETS.some(p=>p.id===provided.selected)?provided.selected:'custom';
+      return data;
+    }
+    try{
+      const fromSaved=JSON.parse(qs('savedState').textContent||'{}');
+      if(fromSaved&&Object.keys(fromSaved).length)state=normalizeState(fromSaved);
+      else if(location.hash.startsWith('#scenario=')){state=normalizeState(JSON.parse(decodeURIComponent(location.hash.slice(10))));}
+    }catch(e){console.warn('Could not read shared settings; using defaults',e)}
+    let toastTimer;
+    function notify(msg){const el=qs('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3400)}
+    function calc(custom={}){
+      const qty=custom.qty||state.qty;
+      const sale=custom.sale!==undefined?custom.sale:state.sale;
+      const coupon=custom.coupon!==undefined?custom.coupon:state.coupon;
+      let current=0,compare=0,cogs=0;
+      for(const p of state.products){const n=number(qty[p.id]||0);current+=n*number(p.current);compare+=n*number(p.compare);cogs+=n*number(p.cogs);}
+      const a=state.assumptions;
+      const fulfillment=number(a.fulfillment);
+      const net=Math.max(0,number(sale)-number(coupon));
+      const expenseRate=(number(a.returns)+number(a.chargebacks)+number(a.tax)+number(a.processing))/100;
+      const processingRate=number(a.processing)/100;
+      const syndAd=number(a.syndicateAd)/100;
+      const syndCM=number(a.syndicateCM)/100;
+      const target=number(a.target)/100;
+      const cost=cogs+fulfillment;
+      const baseCash=net*(1-processingRate)-cost;
+      const regularCash=net*(1-expenseRate)-cost;
+      const basicBE=net>0&&baseCash>0?net/baseCash:null;
+      const regularBE=net>0&&regularCash>0?net/regularCash:null;
+      const syndBE=net>0&&regularCash>0?(net*(1+syndAd)/regularCash):null;
+      const targetCash=regularCash-(syndCM<1?target*net/(1-syndCM):Infinity);
+      const targetROAS=net>0&&targetCash>0?net*(1+syndAd)/targetCash:null;
+      const actualROAS=state.roas;
+      const spend=actualROAS>0?net/actualROAS:null;
+      const adFee=spend!==null?spend*syndAd:null;
+      const cm=spend!==null?regularCash-spend-adFee:null;
+      const agencyFee=cm!==null?Math.max(0,cm)*syndCM:null;
+      const profit=cm!==null?cm-agencyFee:null;
+      const margin=net>0&&profit!==null?100*profit/net:null;
+      return {qty,sale,coupon,net,current,compare,cogs,fulfillment,cost,baseCash,regularCash,basicBE,regularBE,syndBE,targetROAS,spend,adFee,cm,agencyFee,profit,margin,expenseRate,discountCompare:compare>0?100*(compare-net)/compare:0,discountCurrent:current>0?100*(current-net)/current:0};
+    }
+    function renderPresets(){
+      qs('presets').innerHTML=PRESETS.map(pre=>{const d=calc({qty:pre.qty,sale:pre.sale,coupon:0});return `<button type="button" class="preset ${state.selected===pre.id?'active':''}" data-preset="${pre.id}" aria-pressed="${state.selected===pre.id?'true':'false'}"><div class="preset-top"><span class="preset-label">${pre.name}</span><span class="badge">${state.selected===pre.id?'SELECTED':'LOAD OFFER'}</span></div><div class="preset-note">${pre.description}</div><div class="preset-bottom"><div><div class="p-label">Black Friday price</div><div class="p-number">${money(pre.sale)}</div></div><div><div class="p-label">Compare-at savings</div><div class="p-number gold-number">${pct(d.discountCompare)}</div></div><div><div class="p-label">BE · 25% goal</div><div class="p-number" style="font-size:14px">${roasFmt(d.syndBE)} <span style="color:#999;font-weight:500">/</span> ${roasFmt(d.targetROAS)}</div></div></div></button>`}).join('');
+      for(const b of document.querySelectorAll('[data-preset]'))b.addEventListener('click',()=>loadPreset(b.getAttribute('data-preset')));
+    }
+    function loadPreset(id){const p=PRESETS.find(x=>x.id===id);if(!p)return;state.selected=p.id;state.qty=clone(p.qty);state.sale=p.sale;state.coupon=0;render();notify(`${p.name} loaded`)}
+    function buildProductRows(){
+      qs('products').innerHTML=state.products.map(p=>`<div class="product-row ${state.qty[p.id]?'':'inactive'}" data-row="${p.id}"><div><div class="item-title">${p.name}</div><div class="item-sub" id="itemtotal-${p.id}"></div></div><div class="qty"><button type="button" aria-label="Remove one ${p.name}" data-step="-1" data-id="${p.id}">−</button><input type="number" min="0" max="100" inputmode="numeric" value="${state.qty[p.id]}" data-qty="${p.id}" aria-label="Quantity of ${p.name}"/><button type="button" aria-label="Add one ${p.name}" data-step="1" data-id="${p.id}">+</button></div><label class="field-money"><input type="number" min="0" step=".01" inputmode="decimal" value="${n2(p.current)}" data-field="current" data-id="${p.id}" aria-label="${p.name} selling price"/></label><label class="field-money"><input type="number" min="0" step=".01" inputmode="decimal" value="${n2(p.compare)}" data-field="compare" data-id="${p.id}" aria-label="${p.name} compare-at price"/></label><label class="field-money"><input type="number" min="0" step=".01" inputmode="decimal" value="${n2(p.cogs)}" data-field="cogs" data-id="${p.id}" aria-label="${p.name} unit COGS"/></label></div>`).join('');
+      for(const btn of document.querySelectorAll('[data-step]'))btn.addEventListener('click',()=>{const id=btn.dataset.id;state.qty[id]=Math.min(100,Math.max(0,(state.qty[id]||0)+Number(btn.dataset.step)));state.selected='custom';const input=document.querySelector(`[data-qty="${id}"]`);if(input)input.value=state.qty[id];renderOutput();});
+      for(const el of document.querySelectorAll('[data-qty]'))el.addEventListener('input',()=>{state.qty[el.dataset.qty]=Math.min(100,Math.floor(number(el.value)));state.selected='custom';renderOutput();});
+      for(const el of document.querySelectorAll('[data-field]'))el.addEventListener('input',()=>{const p=state.products.find(x=>x.id===el.dataset.id);p[el.dataset.field]=number(el.value);renderOutput();});
+    }
+    function buildRates(){qs('rates').innerHTML=RATES.map(([key,label,suf])=>`<label class="field"><span class="field-label">${label}</span><span class="setting-row"><input class="setting-input" id="rate-${key}" data-rate="${key}" value="${n2(state.assumptions[key])}" type="number" step=".1" min="0" inputmode="decimal"/><span class="suffix">${suf}</span></span></label>`).join('');for(const el of document.querySelectorAll('[data-rate]'))el.addEventListener('input',()=>{state.assumptions[el.dataset.rate]=number(el.value);renderOutput();});}
+    function bindEditable(){
+      qs('sale').value=n2(state.sale);qs('coupon').value=n2(state.coupon);qs('roas').value=n2(state.roas);qs('roasSlider').value=String(Math.max(.5,Math.min(6,state.roas)));
+      qs('sale').addEventListener('input',e=>{state.sale=number(e.target.value);state.selected='custom';renderOutput()});
+      qs('coupon').addEventListener('input',e=>{state.coupon=number(e.target.value);state.selected='custom';renderOutput()});
+      qs('roas').addEventListener('input',e=>{state.roas=number(e.target.value);qs('roasSlider').value=String(Math.max(.5,Math.min(6,state.roas)));renderOutput()});
+      qs('roasSlider').addEventListener('input',e=>{state.roas=number(e.target.value);qs('roas').value=n2(state.roas);renderOutput()});
+    }
+    function renderOutput(){
+      const d=calc();renderPresets();
+      const active=PRESETS.find(p=>p.id===state.selected);
+      qs('selectedFlag').textContent=active?active.short:'CUSTOM KIT';qs('resultOfferName').textContent=active?active.short:'CUSTOM KIT';
+      qs('customerPays').textContent=money(d.net);qs('totalCosts').textContent=money(d.cost);
+      for(const p of state.products){const row=document.querySelector(`[data-row="${p.id}"]`);if(row){row.classList.toggle('inactive',state.qty[p.id]===0);const total=qs(`itemtotal-${p.id}`);if(total)total.textContent=state.qty[p.id]?money(state.qty[p.id]*p.cogs)+' in item costs':'Not included';}}
+      qs('displayPrice').textContent=money(d.net);
+      qs('displayCompare').textContent=money(d.compare);
+      qs('displayDiscount').textContent=(d.discountCompare>=0?pct(d.discountCompare)+' OFF':'NO SAVINGS');
+      qs('compareSavings').textContent=money(d.compare-d.net);
+      qs('currentSavings').textContent=money(d.current-d.net);
+      qs('compareRate').textContent=pct(d.discountCompare)+' savings';qs('currentRate').textContent=pct(d.discountCurrent)+' savings';
+      qs('breakEvenR').textContent=roasFmt(d.syndBE);qs('targetR').textContent=roasFmt(d.targetROAS);
+      qs('basicR').textContent=roasFmt(d.basicBE);qs('regularR').textContent=roasFmt(d.regularBE);
+      qs('targetLabel').textContent=pct(state.assumptions.target);
+      const max=Math.max(4,Math.ceil(Math.max(d.syndBE||0,d.targetROAS||0,Math.min(7,state.roas))*2)/2);
+      qs('chartCap').textContent='Scale 0–'+max.toFixed(1)+'×';
+      const be=Math.min(100,100*(d.syndBE||0)/max);const target=Math.min(100,100*(d.targetROAS||d.syndBE||0)/max);
+      qs('chartStart').style.width=be+'%';qs('chartBetween').style.left=be+'%';qs('chartBetween').style.width=Math.max(0,target-be)+'%';
+      qs('chartCurrent').style.left=Math.min(100,Math.max(0,100*state.roas/max))+'%';
+      const profit=qs('profitNumber'),margin=qs('marginNumber');
+      profit.textContent=d.profit===null?'—':money(d.profit);margin.textContent=d.margin===null?'—':d.margin.toFixed(2)+'%';
+      profit.className='big-number '+(d.profit!==null&&d.profit>=0?'positive':'negative');margin.className='big-number '+(d.margin!==null&&d.margin>=state.assumptions.target?'positive':d.margin!==null&&d.margin<0?'negative':'');
+      qs('progressText').textContent=d.margin===null?'—':d.margin.toFixed(1)+'% / '+pct(state.assumptions.target);
+      const progress=state.assumptions.target>0&&d.margin!==null?Math.max(0,Math.min(100,100*d.margin/state.assumptions.target)):0;
+      qs('progressFill').style.width=progress+'%';qs('progressFill').style.background=d.margin!==null&&d.margin>=state.assumptions.target?'#22744f':'#b88c43';
+      const row=(label,v,final=false)=>`<div class="breakdown-row ${final?'final':''}"><span>${label}</span><strong>${v===null?'—':money(v)}</strong></div>`;
+      qs('breakdown').innerHTML=row('Revenue / AOV',d.net)+row('Product COGS',-d.cogs)+row('Fulfillment',-d.fulfillment)+row('Returns',-d.net*state.assumptions.returns/100)+row('Chargebacks',-d.net*state.assumptions.chargebacks/100)+row('Tax / reserve',-d.net*state.assumptions.tax/100)+row('Processing fees',-d.net*state.assumptions.processing/100)+row('Ad spend',d.spend===null?null:-d.spend)+row('Syndicate · ad spend',d.adFee===null?null:-d.adFee)+row('Syndicate · positive CM',d.agencyFee===null?null:-d.agencyFee)+row('NET PROFIT',d.profit,true);
+      renderComparison();
+    }
+    function renderComparison(){
+      const data=PRESETS.map(p=>({p,d:calc({qty:p.qty,sale:p.sale,coupon:0})}));
+      qs('comparisonRows').innerHTML=data.map(({p,d})=>`<tr class="${state.selected===p.id?'current-row':''}"><td><div class="row-offer">${p.name}</div><div class="small-row-sub">${p.description}</div></td><td>${money(d.net)}</td><td>${money(d.current)}</td><td>${money(d.compare)}</td><td class="table-good">${money(d.compare-d.net)}</td><td class="table-good">${pct(d.discountCompare)}</td><td class="table-roas">${roasFmt(d.syndBE)}</td><td class="table-roas">${roasFmt(d.targetROAS)}</td></tr>`).join('');
+      const heading=document.querySelector('th:last-child');if(heading)heading.textContent=pct(state.assumptions.target)+' MARGIN ROAS';
+    }
+    function render(){buildProductRows();buildRates();qs('sale').value=n2(state.sale);qs('coupon').value=n2(state.coupon);qs('roas').value=n2(state.roas);qs('roasSlider').value=String(Math.max(.5,Math.min(6,state.roas)));renderOutput();}
+    function summarize(){const d=calc();return [`MANMADE / BLACK FRIDAY OFFER`, `Offer: ${PRESETS.find(p=>p.id===state.selected)?.name||'Custom kit'}`,`Products: ${state.products.filter(p=>state.qty[p.id]>0).map(p=>`${state.qty[p.id]}× ${p.name}`).join(', ')}`,`Collected AOV: ${money(d.net)}`,`Current combined retail: ${money(d.current)}`,`Combined compare-at retail: ${money(d.compare)}`,`Savings vs compare-at: ${money(d.compare-d.net)} (${pct(d.discountCompare)})`,`Savings vs current: ${money(d.current-d.net)} (${pct(d.discountCurrent)})`,`Product COGS: ${money(d.cogs)}`,`Fulfillment: ${money(d.fulfillment)}`,`Basic BE ROAS: ${roasFmt(d.basicBE)}`,`Regular BE ROAS: ${roasFmt(d.regularBE)}`,`True BE ROAS (incl. Syndicate): ${roasFmt(d.syndBE)}`,`${pct(state.assumptions.target)} net profit ROAS: ${roasFmt(d.targetROAS)}`,`Profit at ${state.roas.toFixed(2)}× ROAS: ${d.profit===null?'—':money(d.profit)} (${d.margin===null?'—':pct(d.margin)})`].join('\n');}
+    async function copyText(t){try{await navigator.clipboard.writeText(t);notify('Copied to clipboard');}catch(e){const area=document.createElement('textarea');area.value=t;document.body.appendChild(area);area.select();try{document.execCommand('copy');notify('Copied to clipboard');}catch(err){window.prompt('Copy text:',t)}area.remove();}}
+    function downloadText(file,text,type){const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=file;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2500);}
+    function exportHTML(){
+      // Capture all edited settings in the downloadable, self-contained copy.
+      const safeJson=JSON.stringify(state).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
+      const el=qs('savedState');const previous=el.textContent;el.textContent=safeJson;
+      const html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+      el.textContent=previous;
+      downloadText('ManMade_Black_Friday_Calculator_Shared.html',html,'text/html;charset=utf-8');
+      notify('Editable HTML with your settings downloaded');
+    }
+    function exportCSV(){
+      const header=['Offer','Items','BF price','Current retail value','Compare-at retail value','Product COGS','Total COGS with fulfillment','Savings vs compare-at','Savings vs compare-at %','Savings vs current','Savings vs current %','Basic BE ROAS','Regular BE ROAS','BE with Syndicate','Target margin ROAS'];
+      const rows=PRESETS.map(p=>{const d=calc({qty:p.qty,sale:p.sale,coupon:0});return [p.name,p.description,p.sale,d.current,d.compare,d.cogs,d.cost,d.compare-d.net,d.discountCompare,d.current-d.net,d.discountCurrent,d.basicBE??'',d.regularBE??'',d.syndBE??'',d.targetROAS??''];});
+      const esc=v=>'"'+String(v).replace(/"/g,'""')+'"';
+      downloadText('ManMade_Black_Friday_Offer_Comparison.csv',[header,...rows].map(row=>row.map(esc).join(',')).join('\r\n'),'text/csv;charset=utf-8');notify('Comparison CSV downloaded');
+    }
+    qs('copySummary').addEventListener('click',()=>copyText(summarize()));
+    qs('downloadHtml').addEventListener('click',exportHTML);
+    qs('exportCsv').addEventListener('click',exportCSV);
+    qs('printPage').addEventListener('click',()=>window.print());
+    qs('resetAll').addEventListener('click',()=>{state=clone(DEFAULTS);render();notify('Restored original preset values')});
+    bindEditable();render();
+  </script>
+</body>
+</html>
